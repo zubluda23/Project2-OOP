@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Conferences>
+	
+	<Conference Title="Інформаційні технології та комп'ютерна інженерія"
+				Field="Комп'ютерні науки"
+				Fee="450"
+				Organizer="Асоціація IT України">
+		<Details Location="Київ" StartDate="2026-10-20" Deadline="2026-09-15" />
+	</Conference>
+
+	
+	<Conference Title="Сучасні проблеми кібербезпеки"
+				Field="Кібербезпека"
+				Organizer="Держспецзв'язку">
+		<Details Location="Львів" StartDate="2026-11-12" Deadline="2026-10-01" />
+	</Conference>
+
+	
+	<Conference Title="Міжнародний форум хмарних технологій"
+				Field="Хмарні технології"
+				Fee="800">
+		<Details Location="Одеса" StartDate="2026-12-05" Deadline="2026-11-10" />
+	</Conference>
+</Conferences>
