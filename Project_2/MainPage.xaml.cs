@@ -16,7 +16,7 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         manager = new ConferenceManager();
 
-        // Автоматично шукаємо conferences.xml поруч із програмою при відкритті вікна
+        
         AutoLoadDefaultXml();
     }
 
@@ -24,11 +24,11 @@ public partial class MainPage : ContentPage
     {
         try
         {
-            // Шукаємо файл у папці запуску або на рівень вище в проєкті
+            
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
             string localFile = Path.Combine(baseDir, "conferences.xml");
 
-            // Якщо файл не скопіювався в bin, шукаємо в корені вихідного коду проєкту
+           
             if (!File.Exists(localFile))
             {
                 string projectDir = Directory.GetParent(baseDir)?.Parent?.Parent?.Parent?.FullName ?? "";
@@ -58,7 +58,7 @@ public partial class MainPage : ContentPage
     {
         var (fields, organizers) = manager.LoadAttributes(path);
 
-        // Додаємо пункт скидання фільтра
+        
         var fieldList = new List<string> { "-- Всі тематики --" };
         fieldList.AddRange(fields);
 
@@ -111,7 +111,7 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        // Обираємо патерн-стратегію
+        
         if (rbSax.IsChecked)
             manager.SetStrategy(new SaxParserStrategy());
         else if (rbDom.IsChecked)
@@ -119,7 +119,7 @@ public partial class MainPage : ContentPage
         else
             manager.SetStrategy(new LinqToXmlParserStrategy());
 
-        // Отримуємо значення з інтерфейсу
+      
         string? rawField = pickerField.SelectedItem?.ToString();
         string selectedField = (rawField == null || rawField.StartsWith("--")) ? string.Empty : rawField.Trim();
 
