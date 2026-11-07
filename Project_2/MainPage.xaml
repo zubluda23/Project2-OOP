@@ -26,10 +26,10 @@
             <Label Text="Ключове слово (пошук у назві або місті):" FontAttributes="Bold" />
             <Entry x:Name="txtKeyword" Placeholder="Введіть слово для пошуку..." />
 
-            <Label Text="Метод обробки (Патерн Strategy):" FontAttributes="Bold" />
+            <Label Text="Метод обробки:" FontAttributes="Bold" />
             <HorizontalStackLayout Spacing="20">
-                <RadioButton x:Name="rbSax" Content="SAX (XmlReader)" IsChecked="True" />
-                <RadioButton x:Name="rbDom" Content="DOM (XmlDocument)" />
+                <RadioButton x:Name="rbSax" Content="SAX" IsChecked="True" />
+                <RadioButton x:Name="rbDom" Content="DOM" />
                 <RadioButton x:Name="rbLinq" Content="LINQ to XML" />
             </HorizontalStackLayout>
 

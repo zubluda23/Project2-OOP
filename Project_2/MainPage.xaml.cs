@@ -59,10 +59,10 @@ public partial class MainPage : ContentPage
         var (fields, organizers) = manager.LoadAttributes(path);
 
         
-        var fieldList = new List<string> { "-- Всі тематики --" };
+        var fieldList = new List<string> { "Всі тематики" };
         fieldList.AddRange(fields);
 
-        var orgList = new List<string> { "-- Всі організатори --" };
+        var orgList = new List<string> { "Всі організатори" };
         orgList.AddRange(organizers);
 
         pickerField.ItemsSource = fieldList;
@@ -121,10 +121,8 @@ public partial class MainPage : ContentPage
 
       
         string? rawField = pickerField.SelectedItem?.ToString();
-        string selectedField = (rawField == null || rawField.StartsWith("--")) ? string.Empty : rawField.Trim();
-
-        string? rawOrg = pickerOrganizer.SelectedItem?.ToString();
-        string selectedOrg = (rawOrg == null || rawOrg.StartsWith("--")) ? string.Empty : rawOrg.Trim();
+        string selectedField = (pickerField.SelectedIndex <= 0) ? string.Empty : pickerField.SelectedItem?.ToString()?.Trim() ?? string.Empty;
+        string selectedOrg = (pickerOrganizer.SelectedIndex <= 0) ? string.Empty : pickerOrganizer.SelectedItem?.ToString()?.Trim() ?? string.Empty;
 
         string keyword = txtKeyword.Text?.Trim() ?? string.Empty;
 
@@ -137,12 +135,12 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        var sb = new StringBuilder();
+         var sb = new StringBuilder();
         sb.AppendLine($"Знайдено результатів: {results.Count}\n");
         foreach (var item in results)
         {
             sb.AppendLine(item.GetInfo());
-            sb.AppendLine(new string('-', 70));
+            sb.AppendLine(); 
         }
 
         txtResults.Text = sb.ToString();
