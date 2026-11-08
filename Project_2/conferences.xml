@@ -15,10 +15,9 @@
 		<Details Location="Львів" StartDate="2026-11-12" Deadline="2026-10-01" />
 	</Conference>
 
-	
+
 	<Conference Title="Міжнародний форум хмарних технологій"
-				Field="Хмарні технології"
-				Fee="800">
+				Field="Хмарні технології">
 		<Details Location="Одеса" StartDate="2026-12-05" Deadline="2026-11-10" />
 	</Conference>
 </Conferences>
