@@ -21,6 +21,9 @@ public class Conference
 
     public string GetInfo()
     {
-        return $"«{Title}» | Галузь: {Field} | Організатор: {Organizer} | Місце: {Location} | Дати: {StartDate} | Дедлайн: {Deadline} | Вартість: {(Fee > 0 ? Fee + " грн" : "Безкоштовно")}";
+        string orgText = string.IsNullOrWhiteSpace(Organizer) ? "Не вказано" : Organizer;
+        string feeText = Fee > 0 ? $"{Fee} грн" : "Безкоштовно";
+
+        return $"«{Title}» ; Галузь: {Field} ; Організатор: {orgText} ; Місце: {Location} ; Дати: {StartDate} ; Дедлайн: {Deadline} ; Вартість: {feeText}";
     }
 }
