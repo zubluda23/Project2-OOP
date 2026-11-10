@@ -139,12 +139,9 @@ public partial class MainPage : ContentPage
 
         try
         {
-            string baseDir = AppContext.BaseDirectory;
-            string xslPath = Path.Combine(baseDir, "transform.xsl");
-            string outputFolder = Path.GetDirectoryName(loadedXmlPath) ?? baseDir;
-            string htmlPath = Path.Combine(outputFolder, "ConferencesReport.html");
+           
+            bool isSuccess = manager.ExportToHtml(loadedXmlPath, out string htmlPath);
 
-            bool isSuccess = manager.ExportToHtml(loadedXmlPath, xslPath, htmlPath);
             if (isSuccess)
             {
                 await DisplayAlert("Успіх", $"HTML-звіт успішно створено:\n{htmlPath}", "OK");
@@ -158,6 +155,7 @@ public partial class MainPage : ContentPage
         {
             await DisplayAlert("Помилка трансформації", ex.Message, "OK");
         }
+    
     }
 
     public void OnClearClicked(object? sender, EventArgs e)

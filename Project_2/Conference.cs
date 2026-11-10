@@ -12,12 +12,6 @@ public class Conference
 
     public Conference() { }
 
-    public Conference(string title, string field, decimal fee)
-    {
-        Title = title;
-        Field = field;
-        Fee = fee;
-    }
 
     public string GetInfo()
     {
