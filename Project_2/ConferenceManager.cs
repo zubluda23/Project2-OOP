@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 
 namespace Project_2;
@@ -22,43 +21,12 @@ public class ConferenceManager
         currentStrategy = strategy;
     }
 
-   
-    public void SetStrategyBySelection(bool isSax, bool isDom)
-    {
-        if (isSax)
-            currentStrategy = new SaxParserStrategy();
-        else if (isDom)
-            currentStrategy = new DomParserStrategy();
-        else
-            currentStrategy = new LinqToXmlParserStrategy();
-    }
-
     public List<Conference> FilterConferences(string xmlPath, FilterCriteria filter)
     {
         if (currentStrategy == null)
             return new List<Conference>();
 
         return currentStrategy.Analyze(xmlPath, filter);
-    }
-
-  
-    public string FormatSearchResults(string xmlPath, FilterCriteria filter)
-    {
-        var results = FilterConferences(xmlPath, filter);
-        if (results.Count == 0)
-        {
-            return "За заданими критеріями конференцій не знайдено.";
-        }
-
-        var sb = new StringBuilder();
-        sb.AppendLine($"Знайдено результатів: {results.Count}\n");
-        foreach (var item in results)
-        {
-            sb.AppendLine(item.GetInfo());
-            sb.AppendLine();
-        }
-
-        return sb.ToString();
     }
 
     public (List<string> Fields, List<string> Organizers) LoadAttributes(string xmlPath)
@@ -82,20 +50,30 @@ public class ConferenceManager
         return (fields, organizers);
     }
 
-
     public bool ExportToHtml(string xmlPath, out string htmlPath)
     {
+        htmlPath = string.Empty;
+
         string baseDir = AppContext.BaseDirectory;
         string xslPath = Path.Combine(baseDir, "transform.xsl");
 
         string outputFolder = Path.GetDirectoryName(xmlPath) ?? baseDir;
-        htmlPath = Path.Combine(outputFolder, "ConferencesReport.html");
+        string targetHtml = Path.Combine(outputFolder, "ConferencesReport.html");
 
         if (!File.Exists(xslPath))
         {
-            throw new FileNotFoundException($"Файл transform.xsl не знайдено за шляхом:\n{xslPath}");
+            return false;
         }
 
-        return xsltTransformer.TransformToHtml(xmlPath, xslPath, htmlPath);
+        try
+        {
+            xsltTransformer.TransformToHtml(xmlPath, xslPath, targetHtml);
+            htmlPath = targetHtml;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

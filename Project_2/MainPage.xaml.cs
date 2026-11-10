@@ -97,17 +97,36 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        
-        manager.SetStrategyBySelection(rbSax.IsChecked, rbDom.IsChecked);
+      
+        if (rbSax.IsChecked)
+            manager.SetStrategy(new SaxParserStrategy());
+        else if (rbDom.IsChecked)
+            manager.SetStrategy(new DomParserStrategy());
+        else
+            manager.SetStrategy(new LinqToXmlParserStrategy());
 
         string selectedField = (pickerField.SelectedIndex <= 0) ? string.Empty : pickerField.SelectedItem?.ToString()?.Trim() ?? string.Empty;
         string selectedOrg = (pickerOrganizer.SelectedIndex <= 0) ? string.Empty : pickerOrganizer.SelectedItem?.ToString()?.Trim() ?? string.Empty;
         string keyword = txtKeyword.Text?.Trim() ?? string.Empty;
 
         var criteria = new FilterCriteria(selectedField, selectedOrg, keyword);
+        var results = manager.FilterConferences(loadedXmlPath, criteria);
 
-   
-        txtResults.Text = manager.FormatSearchResults(loadedXmlPath, criteria);
+        if (results.Count == 0)
+        {
+            txtResults.Text = "За заданими критеріями конференцій не знайдено.";
+            return;
+        }
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"Знайдено результатів: {results.Count}\n");
+        foreach (var item in results)
+        {
+            sb.AppendLine(item.GetInfo());
+            sb.AppendLine();
+        }
+
+        txtResults.Text = sb.ToString();
     }
 
     public async void OnTransformClicked(object? sender, EventArgs e)

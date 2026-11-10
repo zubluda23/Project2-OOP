@@ -4,7 +4,7 @@ namespace Project_2;
 
 public class XsltTransformer
 {
-    
+
     public bool TransformToHtml(string xmlPath, string xslPath, string outputHtmlPath)
     {
         var transform = new XslCompiledTransform();
