@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Microsoft.Maui.Controls;
 
 namespace Project_2;
@@ -97,7 +98,6 @@ public partial class MainPage : ContentPage
             return;
         }
 
-      
         if (rbSax.IsChecked)
             manager.SetStrategy(new SaxParserStrategy());
         else if (rbDom.IsChecked)
@@ -118,7 +118,7 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         sb.AppendLine($"Знайдено результатів: {results.Count}\n");
         foreach (var item in results)
         {
@@ -139,10 +139,19 @@ public partial class MainPage : ContentPage
 
         try
         {
-            bool isSuccess = manager.ExportToHtml(loadedXmlPath, out string htmlPath);
+            string baseDir = AppContext.BaseDirectory;
+            string xslPath = Path.Combine(baseDir, "transform.xsl");
+            string outputFolder = Path.GetDirectoryName(loadedXmlPath) ?? baseDir;
+            string htmlPath = Path.Combine(outputFolder, "ConferencesReport.html");
+
+            bool isSuccess = manager.ExportToHtml(loadedXmlPath, xslPath, htmlPath);
             if (isSuccess)
             {
                 await DisplayAlert("Успіх", $"HTML-звіт успішно створено:\n{htmlPath}", "OK");
+            }
+            else
+            {
+                await DisplayAlert("Помилка", "Не вдалося знайти файл стилів transform.xsl", "OK");
             }
         }
         catch (Exception ex)

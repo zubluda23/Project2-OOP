@@ -13,6 +13,7 @@ public class DomParserStrategy : IXmlParserStrategy
         var doc = new XmlDocument();
         doc.Load(xmlPath);
 
+   
         var xpathConditions = new List<string>();
 
         if (!string.IsNullOrWhiteSpace(filter.SelectedField))
@@ -45,11 +46,13 @@ public class DomParserStrategy : IXmlParserStrategy
                 Organizer = node.Attributes["Organizer"]?.Value ?? string.Empty
             };
 
+         
             string? feeStr = node.Attributes["Fee"]?.Value;
             if (decimal.TryParse(feeStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal fee))
             {
                 conf.Fee = fee;
             }
+
 
             XmlNode? details = node.SelectSingleNode("Details");
             if (details?.Attributes != null)
@@ -59,6 +62,7 @@ public class DomParserStrategy : IXmlParserStrategy
                 conf.Deadline = details.Attributes["Deadline"]?.Value ?? string.Empty;
             }
 
+           
             bool matchKey = string.IsNullOrEmpty(filter.Keyword) ||
                             conf.Title.Contains(filter.Keyword, StringComparison.OrdinalIgnoreCase) ||
                             conf.Location.Contains(filter.Keyword, StringComparison.OrdinalIgnoreCase);

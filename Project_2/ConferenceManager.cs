@@ -50,16 +50,8 @@ public class ConferenceManager
         return (fields, organizers);
     }
 
-    public bool ExportToHtml(string xmlPath, out string htmlPath)
+    public bool ExportToHtml(string xmlPath, string xslPath, string outputPath)
     {
-        htmlPath = string.Empty;
-
-        string baseDir = AppContext.BaseDirectory;
-        string xslPath = Path.Combine(baseDir, "transform.xsl");
-
-        string outputFolder = Path.GetDirectoryName(xmlPath) ?? baseDir;
-        string targetHtml = Path.Combine(outputFolder, "ConferencesReport.html");
-
         if (!File.Exists(xslPath))
         {
             return false;
@@ -67,8 +59,7 @@ public class ConferenceManager
 
         try
         {
-            xsltTransformer.TransformToHtml(xmlPath, xslPath, targetHtml);
-            htmlPath = targetHtml;
+            xsltTransformer.TransformToHtml(xmlPath, xslPath, outputPath);
             return true;
         }
         catch
