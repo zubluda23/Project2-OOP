@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Microsoft.Maui.Controls;
 
 namespace Project_2;
@@ -16,7 +15,6 @@ public partial class MainPage : ContentPage
         InitializeComponent();
         manager = new ConferenceManager();
 
-        
         AutoLoadDefaultXml();
     }
 
@@ -24,28 +22,17 @@ public partial class MainPage : ContentPage
     {
         try
         {
-            
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string localFile = Path.Combine(baseDir, "conferences.xml");
+            string defaultFile = Path.Combine(AppContext.BaseDirectory, "conferences.xml");
 
-           
-            if (!File.Exists(localFile))
+            if (File.Exists(defaultFile))
             {
-                string projectDir = Directory.GetParent(baseDir)?.Parent?.Parent?.Parent?.FullName ?? "";
-                string sourceFile = Path.Combine(projectDir, "conferences.xml");
-                if (File.Exists(sourceFile))
-                    localFile = sourceFile;
-            }
-
-            if (File.Exists(localFile))
-            {
-                loadedXmlPath = localFile;
-                lblFilePath.Text = $"Завантажено автоматично: {Path.GetFileName(loadedXmlPath)}";
+                loadedXmlPath = defaultFile;
+                lblFilePath.Text = $"Завантажено: {Path.GetFileName(loadedXmlPath)}";
                 PopulatePickers(loadedXmlPath);
             }
             else
             {
-                lblFilePath.Text = "Натисніть кнопку вище та вкажіть шлях до conferences.xml";
+                lblFilePath.Text = "Натисніть кнопку вище та оберіть XML-файл";
             }
         }
         catch (Exception ex)
@@ -58,7 +45,6 @@ public partial class MainPage : ContentPage
     {
         var (fields, organizers) = manager.LoadAttributes(path);
 
-        
         var fieldList = new List<string> { "Всі тематики" };
         fieldList.AddRange(fields);
 
@@ -78,7 +64,7 @@ public partial class MainPage : ContentPage
         {
             var options = new PickOptions
             {
-                PickerTitle = "Оберіть файл conferences.xml",
+                PickerTitle = "Оберіть XML-файл конференцій",
                 FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
                     { DevicePlatform.WinUI, new[] { ".xml" } },
@@ -107,43 +93,21 @@ public partial class MainPage : ContentPage
     {
         if (string.IsNullOrEmpty(loadedXmlPath) || !File.Exists(loadedXmlPath))
         {
-            DisplayAlert("Увага", "Файл conferences.xml не знайдено! Натисніть «Обрати XML-файл».", "OK");
+            DisplayAlert("Увага", "Спочатку оберіть XML-файл!", "OK");
             return;
         }
 
         
-        if (rbSax.IsChecked)
-            manager.SetStrategy(new SaxParserStrategy());
-        else if (rbDom.IsChecked)
-            manager.SetStrategy(new DomParserStrategy());
-        else
-            manager.SetStrategy(new LinqToXmlParserStrategy());
+        manager.SetStrategyBySelection(rbSax.IsChecked, rbDom.IsChecked);
 
-      
-        string? rawField = pickerField.SelectedItem?.ToString();
         string selectedField = (pickerField.SelectedIndex <= 0) ? string.Empty : pickerField.SelectedItem?.ToString()?.Trim() ?? string.Empty;
         string selectedOrg = (pickerOrganizer.SelectedIndex <= 0) ? string.Empty : pickerOrganizer.SelectedItem?.ToString()?.Trim() ?? string.Empty;
-
         string keyword = txtKeyword.Text?.Trim() ?? string.Empty;
 
         var criteria = new FilterCriteria(selectedField, selectedOrg, keyword);
-        var results = manager.FilterConferences(loadedXmlPath, criteria);
 
-        if (results.Count == 0)
-        {
-            txtResults.Text = "За заданими критеріями конференцій не знайдено.";
-            return;
-        }
-
-         var sb = new StringBuilder();
-        sb.AppendLine($"Знайдено результатів: {results.Count}\n");
-        foreach (var item in results)
-        {
-            sb.AppendLine(item.GetInfo());
-            sb.AppendLine(); 
-        }
-
-        txtResults.Text = sb.ToString();
+   
+        txtResults.Text = manager.FormatSearchResults(loadedXmlPath, criteria);
     }
 
     public async void OnTransformClicked(object? sender, EventArgs e)
@@ -156,18 +120,11 @@ public partial class MainPage : ContentPage
 
         try
         {
-            string folder = Path.GetDirectoryName(loadedXmlPath) ?? AppDomain.CurrentDomain.BaseDirectory;
-            string xslPath = Path.Combine(folder, "transform.xsl");
-            string htmlPath = Path.Combine(folder, "ConferencesReport.html");
-
-            if (!File.Exists(xslPath))
+            bool isSuccess = manager.ExportToHtml(loadedXmlPath, out string htmlPath);
+            if (isSuccess)
             {
-                await DisplayAlert("Помилка", $"Не знайдено transform.xsl поруч із файлом XML:\n{xslPath}", "OK");
-                return;
+                await DisplayAlert("Успіх", $"HTML-звіт успішно створено:\n{htmlPath}", "OK");
             }
-
-            manager.ExportToHtml(loadedXmlPath, xslPath, htmlPath);
-            await DisplayAlert("Успіх", $"HTML-звіт успішно створено:\n{htmlPath}", "OK");
         }
         catch (Exception ex)
         {

@@ -1,6 +1,6 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 
 namespace Project_2;
@@ -25,9 +25,21 @@ public class SaxParserStrategy : IXmlParserStrategy
                     Field = reader.GetAttribute("Field") ?? string.Empty,
                     Organizer = reader.GetAttribute("Organizer") ?? string.Empty
                 };
-
-                if (decimal.TryParse(reader.GetAttribute("Fee"), out decimal parsedFee))
+               
+                string? feeStr = reader.GetAttribute("Fee");
+                if (decimal.TryParse(feeStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal parsedFee))
+                {
                     currentConf.Fee = parsedFee;
+                }
+
+                if (reader.IsEmptyElement)
+                {
+                    if (IsMatch(currentConf, filter))
+                    {
+                        results.Add(currentConf);
+                    }
+                    currentConf = null;
+                }
             }
             else if (reader.NodeType == XmlNodeType.Element && reader.Name == "Details" && currentConf != null)
             {
@@ -38,8 +50,9 @@ public class SaxParserStrategy : IXmlParserStrategy
             else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "Conference" && currentConf != null)
             {
                 if (IsMatch(currentConf, filter))
+                {
                     results.Add(currentConf);
-
+                }
                 currentConf = null;
             }
         }

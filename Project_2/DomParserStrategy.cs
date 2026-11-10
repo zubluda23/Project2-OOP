@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 
 namespace Project_2;
@@ -12,7 +13,25 @@ public class DomParserStrategy : IXmlParserStrategy
         var doc = new XmlDocument();
         doc.Load(xmlPath);
 
-        XmlNodeList? nodes = doc.SelectNodes("//Conference");
+        var xpathConditions = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(filter.SelectedField))
+        {
+            xpathConditions.Add($"@Field=\"{filter.SelectedField}\"");
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.SelectedOrganizer))
+        {
+            xpathConditions.Add($"@Organizer=\"{filter.SelectedOrganizer}\"");
+        }
+
+        string xpath = "//Conference";
+        if (xpathConditions.Count > 0)
+        {
+            xpath += "[" + string.Join(" and ", xpathConditions) + "]";
+        }
+
+        XmlNodeList? nodes = doc.SelectNodes(xpath);
         if (nodes == null) return results;
 
         foreach (XmlNode node in nodes)
@@ -26,8 +45,11 @@ public class DomParserStrategy : IXmlParserStrategy
                 Organizer = node.Attributes["Organizer"]?.Value ?? string.Empty
             };
 
-            if (decimal.TryParse(node.Attributes["Fee"]?.Value, out decimal fee))
+            string? feeStr = node.Attributes["Fee"]?.Value;
+            if (decimal.TryParse(feeStr, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal fee))
+            {
                 conf.Fee = fee;
+            }
 
             XmlNode? details = node.SelectSingleNode("Details");
             if (details?.Attributes != null)
@@ -37,12 +59,14 @@ public class DomParserStrategy : IXmlParserStrategy
                 conf.Deadline = details.Attributes["Deadline"]?.Value ?? string.Empty;
             }
 
-            bool matchField = string.IsNullOrEmpty(filter.SelectedField) || conf.Field.Equals(filter.SelectedField, StringComparison.OrdinalIgnoreCase);
-            bool matchOrg = string.IsNullOrEmpty(filter.SelectedOrganizer) || conf.Organizer.Equals(filter.SelectedOrganizer, StringComparison.OrdinalIgnoreCase);
-            bool matchKey = string.IsNullOrEmpty(filter.Keyword) || conf.Title.Contains(filter.Keyword, StringComparison.OrdinalIgnoreCase) || conf.Location.Contains(filter.Keyword, StringComparison.OrdinalIgnoreCase);
+            bool matchKey = string.IsNullOrEmpty(filter.Keyword) ||
+                            conf.Title.Contains(filter.Keyword, StringComparison.OrdinalIgnoreCase) ||
+                            conf.Location.Contains(filter.Keyword, StringComparison.OrdinalIgnoreCase);
 
-            if (matchField && matchOrg && matchKey)
+            if (matchKey)
+            {
                 results.Add(conf);
+            }
         }
 
         return results;
